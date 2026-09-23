@@ -1,0 +1,241 @@
+{
+  "spec_version": "0.1.0",
+  "mode": "design_planning",
+  "material": {
+    "category": "ecommerce_marketing",
+    "type": "ecommerce_main_image",
+    "intent": ["product_recognition", "conversion"],
+    "confidence": 0.95
+  },
+  "canvas": {
+    "pixel_width": 1080,
+    "pixel_height": 1350,
+    "aspect_ratio": "4:5",
+    "orientation": "portrait",
+    "coordinate_system": {
+      "origin": "top_left",
+      "space": "normalized",
+      "range": [0, 1],
+      "bbox_format": "xywh"
+    },
+    "safe_area": {
+      "left": 0.06,
+      "right": 0.06,
+      "top": 0.05,
+      "bottom": 0.06,
+      "source": "proposed",
+      "confidence": 0.95
+    }
+  },
+  "style_tokens": {
+    "palette": {
+      "background": "#EEF3F8",
+      "text_primary": "#111827",
+      "accent": "#FF5A36"
+    },
+    "typography": {
+      "headline": {
+        "font_class": "sans-serif",
+        "weight": 700,
+        "size_rel_h": 0.055
+      }
+    },
+    "density": {
+      "information_density": "medium",
+      "decorative_density": "low",
+      "whitespace_ratio": 0.28
+    }
+  },
+  "elements": [
+    {
+      "id": "background.base",
+      "role": "background",
+      "parent": "canvas",
+      "text": null,
+      "bbox": {"x": 0, "y": 0, "w": 1, "h": 1},
+      "center": {"x": 0.5, "y": 0.5},
+      "layer_depth": 0,
+      "rotation_deg": 0,
+      "crop": {"left": false, "right": false, "top": false, "bottom": false},
+      "source": "proposed",
+      "confidence": 1,
+      "review_status": "accepted",
+      "evidence": "Full-canvas background."
+    },
+    {
+      "id": "text.headline",
+      "role": "headline",
+      "parent": "group.headline",
+      "text": "[headline]",
+      "bbox": {"x": 0.12, "y": 0.08, "w": 0.76, "h": 0.10},
+      "center": {"x": 0.5, "y": 0.13},
+      "layer_depth": 65,
+      "rotation_deg": 0,
+      "crop": {"left": false, "right": false, "top": false, "bottom": false},
+      "source": "proposed",
+      "confidence": 0.9,
+      "review_status": "accepted",
+      "evidence": "Planned primary proposition region."
+    },
+    {
+      "id": "product.main",
+      "role": "product",
+      "parent": "group.hero",
+      "text": null,
+      "bbox": {"x": 0.18, "y": 0.24, "w": 0.64, "h": 0.46},
+      "center": {"x": 0.5, "y": 0.47},
+      "layer_depth": 30,
+      "rotation_deg": 0,
+      "crop": {"left": false, "right": false, "top": false, "bottom": false},
+      "source": "proposed",
+      "confidence": 0.9,
+      "review_status": "accepted",
+      "evidence": "Planned dominant central product."
+    },
+    {
+      "id": "conversion.price",
+      "role": "price",
+      "parent": "group.conversion",
+      "text": "[price]",
+      "bbox": {"x": 0.30, "y": 0.73, "w": 0.40, "h": 0.07},
+      "center": {"x": 0.5, "y": 0.765},
+      "layer_depth": 82,
+      "rotation_deg": 0,
+      "crop": {"left": false, "right": false, "top": false, "bottom": false},
+      "source": "proposed",
+      "confidence": 0.9,
+      "review_status": "accepted",
+      "evidence": "Planned conversion block."
+    },
+    {
+      "id": "conversion.cta",
+      "role": "cta",
+      "parent": "group.conversion",
+      "text": "[CTA]",
+      "bbox": {"x": 0.34, "y": 0.83, "w": 0.32, "h": 0.075},
+      "center": {"x": 0.5, "y": 0.8675},
+      "layer_depth": 85,
+      "rotation_deg": 0,
+      "crop": {"left": false, "right": false, "top": false, "bottom": false},
+      "source": "proposed",
+      "confidence": 0.9,
+      "review_status": "accepted",
+      "evidence": "Planned terminal action."
+    }
+  ],
+  "scene_graph": {
+    "root": "canvas",
+    "nodes": [
+      {
+        "id": "canvas",
+        "type": "group",
+        "children": ["background.base", "group.headline", "group.hero", "group.conversion"]
+      },
+      {
+        "id": "group.headline",
+        "type": "group",
+        "children": ["text.headline"]
+      },
+      {
+        "id": "group.hero",
+        "type": "group",
+        "children": ["product.main"]
+      },
+      {
+        "id": "group.conversion",
+        "type": "group",
+        "children": ["conversion.price", "conversion.cta"]
+      }
+    ]
+  },
+  "anchors": [
+    {
+      "id": "anchor.cta_to_price",
+      "from": {"element": "conversion.cta", "anchor": "top"},
+      "to": {"element": "conversion.price", "anchor": "bottom"},
+      "offset": {"x": 0, "y": 0.03},
+      "source": "proposed",
+      "confidence": 0.95
+    }
+  ],
+  "constraints": [
+    {
+      "id": "constraint.product_center",
+      "type": "align_center_x",
+      "subjects": ["product.main"],
+      "value": 0.5,
+      "priority": "required",
+      "source": "proposed",
+      "confidence": 0.95
+    },
+    {
+      "id": "constraint.cta_below_price",
+      "type": "below",
+      "subjects": ["conversion.cta", "conversion.price"],
+      "value": {"gap": 0.03},
+      "priority": "required",
+      "source": "proposed",
+      "confidence": 0.95
+    }
+  ],
+  "attention_graph": {
+    "fixations": [
+      {
+        "rank": 1,
+        "target": "product.main",
+        "weight": 1,
+        "mechanisms": ["scale", "centrality", "isolation"],
+        "confidence": 0.9
+      },
+      {
+        "rank": 2,
+        "target": "text.headline",
+        "weight": 0.82,
+        "mechanisms": ["type_scale", "luminance_contrast"],
+        "confidence": 0.85
+      },
+      {
+        "rank": 3,
+        "target": "conversion.price",
+        "weight": 0.68,
+        "mechanisms": ["color_contrast", "proximity"],
+        "confidence": 0.84
+      },
+      {
+        "rank": 4,
+        "target": "conversion.cta",
+        "weight": 0.58,
+        "mechanisms": ["enclosure", "proximity"],
+        "confidence": 0.84
+      }
+    ],
+    "transitions": [
+      {
+        "from": "product.main",
+        "to": "text.headline",
+        "mechanisms": ["proximity", "alignment"],
+        "confidence": 0.82
+      },
+      {
+        "from": "text.headline",
+        "to": "conversion.price",
+        "mechanisms": ["alignment", "vertical_flow"],
+        "confidence": 0.8
+      },
+      {
+        "from": "conversion.price",
+        "to": "conversion.cta",
+        "mechanisms": ["proximity", "alignment"],
+        "confidence": 0.9
+      }
+    ],
+    "terminal_action": "conversion.cta"
+  },
+  "occlusion": [],
+  "review": {
+    "needs_review": [],
+    "notes": [
+      "Copy, exact typeface, and product-specific styling are downstream inputs."
+    ]
+  }
+}
