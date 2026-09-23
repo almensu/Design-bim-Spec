@@ -13,6 +13,7 @@ SEE
 → DECOMPOSE
 → PARAMETERIZE
 → SPECIFY
+→ REVIEW
 → STOP
 ```
 
@@ -40,6 +41,11 @@ This repository intentionally uses a **thin SKILL / thick references** architect
 ├── README.md
 ├── AGENTS.md
 ├── SKILL.md
+├── CHANGELOG.md
+├── CHANGELOG.zh-CN.md
+├── docs/
+│   └── decisions/
+│       └── recursive-self-improvement-bootstrap.md
 └── references/
     ├── reference-index.md
     ├── material-taxonomy.md
@@ -49,6 +55,13 @@ This repository intentionally uses a **thin SKILL / thick references** architect
     ├── attention-model.md
     ├── style-tokens.md
     ├── output-contract.md
+    ├── Gotchas.md
+    ├── evolution-loop.md
+    ├── recursive-self-improvement-protocol.md
+    ├── improvement-record-template.md
+    ├── changelog.md
+    ├── review-checklists/
+    │   └── drs-output-review.md
     ├── schema/
     │   └── design-reconstruction-spec.schema.json
     └── examples/
@@ -66,9 +79,10 @@ This repository intentionally uses a **thin SKILL / thick references** architect
 - reference routing;
 - execution order;
 - hard boundaries;
-- completion test.
+- completion test;
+- maintenance-route pointers.
 
-All domain details live under `references/`.
+All detailed rules live under `references/`.
 
 ## Two modes
 
@@ -92,9 +106,13 @@ Each run produces two synchronized views:
 1. **Human View** — a readable explanation of spatial and visual logic.
 2. **Machine View** — a DRS JSON object.
 
-The Machine View is validated against:
+The Machine View is validated structurally against:
 
 `references/schema/design-reconstruction-spec.schema.json`
+
+Schema validity alone is not enough; semantic references, Human/Machine consistency, provenance, and layout logic are reviewed through:
+
+`references/review-checklists/drs-output-review.md`
 
 ## Coordinate convention
 
@@ -120,6 +138,45 @@ bbox = {x, y, w, h}
 
 Unsupported or ambiguous inputs use `unknown`; execution does not silently invent canonical material types.
 
+## Persistent learning
+
+Design-bim-Spec separates runtime output from repository learning.
+
+### Normal DRS task
+
+```text
+reference / brief
+→ DRS analysis
+→ Human View + Machine View
+→ relevant Gotchas
+→ output review
+→ STOP
+```
+
+Normal runs do not modify the repository.
+
+### Explicit maintenance task
+
+```text
+real failure or useful evidence
+→ improvement record
+→ Gotcha
+→ checklist
+→ schema / validator / regression fixture
+→ routing if needed
+→ later-task comparison
+→ guarded / retired / split
+```
+
+Key files:
+- `references/Gotchas.md` — repeated/high-cost failure memory.
+- `references/evolution-loop.md` — decides where a lesson belongs.
+- `references/recursive-self-improvement-protocol.md` — defines evidence for L0/L1/L2 improvement claims.
+- `references/improvement-record-template.md` — records comparable evidence.
+- `CHANGELOG.md` — records what actually changed, not what we hope improved.
+
+A documentation change is not automatically proof of better design reconstruction. Reusable benefit requires later-task evidence.
+
 ## Downstream consumers
 
 DRS can be consumed by:
@@ -137,3 +194,7 @@ Those systems are downstream. This repository ends at specification.
 ## Core principle
 
 > First compile the design into objects, geometry, hierarchy, constraints, attention, and style. Then let another model or renderer execute the specification.
+
+## Learning principle
+
+> Preserve real failures, harden only the lessons worth carrying forward, and require later-task evidence before claiming the system actually improved.
