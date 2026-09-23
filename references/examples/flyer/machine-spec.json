@@ -1,0 +1,224 @@
+{
+  "spec_version": "0.1.0",
+  "mode": "reference_reconstruction",
+  "material": {
+    "category": "offline_marketing",
+    "type": "flyer",
+    "intent": ["information", "contact_conversion"],
+    "confidence": 0.92
+  },
+  "canvas": {
+    "pixel_width": null,
+    "pixel_height": null,
+    "aspect_ratio": "A4-like portrait",
+    "orientation": "portrait",
+    "coordinate_system": {
+      "origin": "top_left",
+      "space": "normalized",
+      "range": [0, 1],
+      "bbox_format": "xywh"
+    },
+    "safe_area": {
+      "left": 0.07,
+      "right": 0.07,
+      "top": 0.05,
+      "bottom": 0.06,
+      "source": "inferred",
+      "confidence": 0.82
+    }
+  },
+  "style_tokens": {
+    "density": {
+      "information_density": "high",
+      "decorative_density": "low",
+      "whitespace_ratio": 0.18
+    }
+  },
+  "elements": [
+    {
+      "id": "text.headline",
+      "role": "headline",
+      "parent": "group.headline",
+      "text": "[observed headline]",
+      "bbox": {"x": 0.10, "y": 0.07, "w": 0.80, "h": 0.10},
+      "center": {"x": 0.50, "y": 0.12},
+      "layer_depth": 65,
+      "rotation_deg": 0,
+      "crop": {"left": false, "right": false, "top": false, "bottom": false},
+      "source": "observed",
+      "confidence": 0.90,
+      "review_status": "accepted",
+      "evidence": "Largest high-contrast type block near the top."
+    },
+    {
+      "id": "hero.main",
+      "role": "hero_visual",
+      "parent": "group.hero",
+      "text": null,
+      "bbox": {"x": 0.10, "y": 0.20, "w": 0.80, "h": 0.32},
+      "center": {"x": 0.50, "y": 0.36},
+      "layer_depth": 30,
+      "rotation_deg": 0,
+      "crop": {"left": false, "right": false, "top": false, "bottom": false},
+      "source": "observed",
+      "confidence": 0.88,
+      "review_status": "accepted",
+      "evidence": "Dominant central visual block."
+    },
+    {
+      "id": "proof.benefits",
+      "role": "benefits",
+      "parent": "group.proof",
+      "text": "[benefit rows]",
+      "bbox": {"x": 0.12, "y": 0.56, "w": 0.76, "h": 0.20},
+      "center": {"x": 0.50, "y": 0.66},
+      "layer_depth": 62,
+      "rotation_deg": 0,
+      "crop": {"left": false, "right": false, "top": false, "bottom": false},
+      "source": "observed",
+      "confidence": 0.78,
+      "review_status": "accepted",
+      "evidence": "Repeated aligned information rows."
+    },
+    {
+      "id": "conversion.contact",
+      "role": "contact",
+      "parent": "group.contact",
+      "text": "[contact/QR]",
+      "bbox": {"x": 0.12, "y": 0.80, "w": 0.76, "h": 0.13},
+      "center": {"x": 0.50, "y": 0.865},
+      "layer_depth": 82,
+      "rotation_deg": 0,
+      "crop": {"left": false, "right": false, "top": false, "bottom": false},
+      "source": "observed",
+      "confidence": 0.86,
+      "review_status": "accepted",
+      "evidence": "Bottom action/contact region."
+    }
+  ],
+  "scene_graph": {
+    "root": "canvas",
+    "nodes": [
+      {
+        "id": "canvas",
+        "type": "group",
+        "children": ["group.headline", "group.hero", "group.proof", "group.contact"]
+      },
+      {
+        "id": "group.headline",
+        "type": "group",
+        "children": ["text.headline"]
+      },
+      {
+        "id": "group.hero",
+        "type": "group",
+        "children": ["hero.main"]
+      },
+      {
+        "id": "group.proof",
+        "type": "group",
+        "children": ["proof.benefits"]
+      },
+      {
+        "id": "group.contact",
+        "type": "group",
+        "children": ["conversion.contact"]
+      }
+    ]
+  },
+  "anchors": [
+    {
+      "id": "anchor.contact_bottom",
+      "from": {"element": "conversion.contact", "anchor": "bottom"},
+      "to": {"element": "canvas", "anchor": "bottom"},
+      "offset": {"x": 0, "y": -0.07},
+      "source": "inferred",
+      "confidence": 0.78
+    }
+  ],
+  "constraints": [
+    {
+      "id": "constraint.contact_safe",
+      "type": "stay_inside_safe_area",
+      "subjects": ["conversion.contact"],
+      "value": true,
+      "priority": "required",
+      "source": "inferred",
+      "confidence": 0.9
+    },
+    {
+      "id": "constraint.vertical_flow",
+      "type": "below",
+      "subjects": ["group.hero", "group.headline"],
+      "value": {"gap": 0.03},
+      "priority": "strong",
+      "source": "observed",
+      "confidence": 0.82
+    }
+  ],
+  "attention_graph": {
+    "fixations": [
+      {
+        "rank": 1,
+        "target": "text.headline",
+        "weight": 1,
+        "mechanisms": ["type_scale", "luminance_contrast"],
+        "confidence": 0.88
+      },
+      {
+        "rank": 2,
+        "target": "hero.main",
+        "weight": 0.82,
+        "mechanisms": ["scale", "centrality"],
+        "confidence": 0.86
+      },
+      {
+        "rank": 3,
+        "target": "proof.benefits",
+        "weight": 0.62,
+        "mechanisms": ["repetition", "alignment"],
+        "confidence": 0.74
+      },
+      {
+        "rank": 4,
+        "target": "conversion.contact",
+        "weight": 0.55,
+        "mechanisms": ["edge_position", "enclosure"],
+        "confidence": 0.80
+      }
+    ],
+    "transitions": [
+      {
+        "from": "text.headline",
+        "to": "hero.main",
+        "mechanisms": ["vertical_flow", "alignment"],
+        "confidence": 0.82
+      },
+      {
+        "from": "hero.main",
+        "to": "proof.benefits",
+        "mechanisms": ["vertical_flow", "proximity"],
+        "confidence": 0.76
+      },
+      {
+        "from": "proof.benefits",
+        "to": "conversion.contact",
+        "mechanisms": ["vertical_flow", "alignment"],
+        "confidence": 0.78
+      }
+    ],
+    "terminal_action": "conversion.contact"
+  },
+  "occlusion": [],
+  "review": {
+    "needs_review": [
+      {
+        "path": "elements[proof.benefits].text",
+        "reason": "Small copy may be unreadable in a low-resolution reference."
+      }
+    ],
+    "notes": [
+      "Do not invent unreadable print copy."
+    ]
+  }
+}
