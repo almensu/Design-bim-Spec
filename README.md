@@ -1,10 +1,10 @@
 # Design BIM Spec
 
-**Design BIM Spec** is a multimodal design-analysis skill that converts a reference design or a design brief into a canonical, parameterized reconstruction specification.
+**Design BIM Spec** compiles a reference design image or design brief into a canonical **Design Reconstruction Specification (DRS)**.
+
+It is designed for multimodal models with visual understanding.
 
 It does **not** render the final artwork.
-
-Its job is to:
 
 ```text
 SEE
@@ -16,113 +16,124 @@ SEE
 → STOP
 ```
 
-The resulting specification is intended to be consumed by downstream models or tools such as image generators, ComfyUI workflows, layout models, HTML/CSS renderers, Figma automation, SVG/Canvas code, or motion-design systems.
+## Why “BIM” for graphic design?
 
-## Core idea
+The skill treats a 2D design as a structured spatial model rather than a flat image:
 
-Treat a 2D design like BIM treats a building:
-
-- identify semantic objects rather than merely tracing pixels;
-- represent every object in a normalized coordinate system;
-- preserve parent/child grouping and layer depth;
-- describe anchors, constraints, alignment, spacing, and occlusion;
-- encode visual attention as a directed graph;
-- extract reusable style tokens;
-- distinguish observed facts from proposed layout decisions;
-- attach confidence to uncertain observations.
-
-The canonical representation is **Design Reconstruction Specification (DRS)**.
-
-## Two operating modes
-
-1. **Reference Reconstruction**
-   - Input: one or more reference images.
-   - Goal: explain what is visibly present and how the design is constructed.
-   - Spatial values are primarily `observed`.
-
-2. **Design Planning**
-   - Input: a brief without a complete reference image.
-   - Goal: propose a parameterized layout appropriate to the recognized material type.
-   - Spatial values are primarily `proposed`.
-
-## Output
-
-Every successful run produces two synchronized views of the same design:
-
-### Human View
-A readable explanation for review:
-- material recognition;
-- design intent;
-- visual hierarchy;
-- eye-tracking path;
-- layer stack;
-- grouping;
-- spatial relationships;
+- semantic objects instead of raw pixel fragments;
+- normalized X–Y geometry;
+- semantic groups and parent/child hierarchy;
 - anchors and constraints;
-- style system;
-- uncertainties and reconstruction notes.
+- layer depth, crop, and occlusion;
+- visual-attention graph;
+- measurable style tokens;
+- explicit uncertainty and provenance.
 
-### Machine View
-A canonical JSON document containing:
-- metadata;
-- canvas and safe area;
-- material classification;
-- style tokens;
-- elements and normalized bounding boxes;
-- scene graph;
-- anchors;
-- constraints;
-- attention graph;
-- occlusion relationships;
-- evidence/source markers;
-- confidence and review flags.
+The goal is to let downstream systems **rebuild from a specification**, rather than “look at the reference and draw something similar.”
 
-## Coordinate convention
+## Architecture
 
-All canonical element bounds use:
-
-```text
-origin: top-left
-coordinate_space: normalized
-range: 0.0–1.0
-bbox: { x, y, w, h }
-```
-
-Avoid ambiguous `[ymin, xmin, ymax, xmax]` arrays in the canonical form.
-
-## Repository structure
+This repository intentionally uses a **thin SKILL / thick references** architecture.
 
 ```text
 .
-├── SKILL.md
+├── README.md
 ├── AGENTS.md
-├── schemas/
-│   └── design-reconstruction-spec.schema.json
-├── references/
-│   ├── material-taxonomy.md
-│   ├── visual-analysis-protocol.md
-│   ├── canonical-schema.md
-│   ├── layout-constraints.md
-│   └── style-tokens.md
-└── examples/
-    ├── ecommerce-main-image/
-    │   ├── human-spec.md
-    │   └── machine-spec.json
-    └── flyer/
-        ├── human-spec.md
-        └── machine-spec.json
+├── SKILL.md
+└── references/
+    ├── reference-index.md
+    ├── material-taxonomy.md
+    ├── visual-analysis-protocol.md
+    ├── canonical-schema.md
+    ├── layout-constraints.md
+    ├── attention-model.md
+    ├── style-tokens.md
+    ├── output-contract.md
+    ├── schema/
+    │   └── design-reconstruction-spec.schema.json
+    └── examples/
+        ├── ecommerce-main-image/
+        │   ├── human-spec.md
+        │   └── machine-spec.json
+        └── flyer/
+            ├── human-spec.md
+            └── machine-spec.json
 ```
 
-## Non-goals
+`SKILL.md` contains only:
+- responsibility;
+- mode selection;
+- reference routing;
+- execution order;
+- hard boundaries;
+- completion test.
 
-This skill must **not**:
-- render the final asset;
-- silently redesign a reference image;
-- hallucinate exact text, dimensions, brand assets, or colors when evidence is weak;
-- replace uncertainty with confident guesses;
-- collapse all elements into a flat list without semantic grouping;
-- use vague adjectives such as “premium” or “modern” as substitutes for measurable style properties.
+All domain details live under `references/`.
 
-## Principle
+## Two modes
 
-> Do not ask the downstream model to “draw something similar.” First compile the design into an explicit model of objects, geometry, hierarchy, constraints, attention, and style; then let the downstream model execute that model.
+### reference_reconstruction
+Use when a reference image exists.
+
+Values should be labeled:
+- `observed`
+- `inferred`
+
+### design_planning
+Use when a brief exists without a complete reference layout.
+
+Layout decisions should be labeled:
+- `proposed`
+
+## Canonical output
+
+Each run produces two synchronized views:
+
+1. **Human View** — a readable explanation of spatial and visual logic.
+2. **Machine View** — a DRS JSON object.
+
+The Machine View is validated against:
+
+`references/schema/design-reconstruction-spec.schema.json`
+
+## Coordinate convention
+
+```text
+origin = top-left
+coordinate space = normalized
+range = 0.0–1.0
+bbox = {x, y, w, h}
+```
+
+## Core material taxonomy v0.1
+
+### Ecommerce
+- ecommerce_main_image
+- pdp_hero
+- livestream_background
+- feed_ad
+
+### Offline
+- dm_leaflet_or_fold
+- marketing_poster
+- flyer
+
+Unsupported or ambiguous inputs use `unknown`; execution does not silently invent canonical material types.
+
+## Downstream consumers
+
+DRS can be consumed by:
+- multimodal/image-generation models;
+- ComfyUI pipelines;
+- layout models;
+- HTML/CSS;
+- SVG/Canvas;
+- Figma automation;
+- Remotion;
+- other renderers.
+
+Those systems are downstream. This repository ends at specification.
+
+## Core principle
+
+> First compile the design into objects, geometry, hierarchy, constraints, attention, and style. Then let another model or renderer execute the specification.
