@@ -1,0 +1,376 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/almensu/Design-bim-Spec/references/schema/design-reconstruction-spec.schema.json",
+  "title": "Design Reconstruction Specification",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "spec_version",
+    "mode",
+    "material",
+    "canvas",
+    "style_tokens",
+    "elements",
+    "scene_graph",
+    "anchors",
+    "constraints",
+    "attention_graph",
+    "occlusion",
+    "review"
+  ],
+  "properties": {
+    "spec_version": {"const": "0.1.0"},
+    "mode": {
+      "enum": ["reference_reconstruction", "design_planning"]
+    },
+    "material": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "type", "intent", "confidence"],
+      "properties": {
+        "category": {
+          "enum": ["ecommerce_marketing", "offline_marketing", "unknown"]
+        },
+        "type": {
+          "enum": [
+            "ecommerce_main_image",
+            "pdp_hero",
+            "livestream_background",
+            "feed_ad",
+            "dm_leaflet_or_fold",
+            "marketing_poster",
+            "flyer",
+            "unknown"
+          ]
+        },
+        "intent": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "confidence": {"$ref": "#/$defs/confidence"}
+      }
+    },
+    "canvas": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aspect_ratio", "orientation", "coordinate_system", "safe_area"],
+      "properties": {
+        "pixel_width": {"type": ["integer", "null"], "minimum": 1},
+        "pixel_height": {"type": ["integer", "null"], "minimum": 1},
+        "aspect_ratio": {"type": "string"},
+        "orientation": {"enum": ["portrait", "landscape", "square", "unknown"]},
+        "coordinate_system": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["origin", "space", "range", "bbox_format"],
+          "properties": {
+            "origin": {"const": "top_left"},
+            "space": {"const": "normalized"},
+            "range": {
+              "type": "array",
+              "prefixItems": [{"const": 0}, {"const": 1}],
+              "items": false
+            },
+            "bbox_format": {"const": "xywh"}
+          }
+        },
+        "safe_area": {"$ref": "#/$defs/safeArea"}
+      }
+    },
+    "style_tokens": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "elements": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/element"}
+    },
+    "scene_graph": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "nodes"],
+      "properties": {
+        "root": {"type": "string"},
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "type", "children"],
+            "properties": {
+              "id": {"type": "string"},
+              "type": {"enum": ["group", "element"]},
+              "children": {
+                "type": "array",
+                "items": {"type": "string"},
+                "uniqueItems": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "anchors": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/anchorRelation"}
+    },
+    "constraints": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/constraint"}
+    },
+    "attention_graph": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fixations", "transitions"],
+      "properties": {
+        "fixations": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/fixation"}
+        },
+        "transitions": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/attentionTransition"}
+        },
+        "terminal_action": {"type": ["string", "null"]}
+      }
+    },
+    "occlusion": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/occlusionRelation"}
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["needs_review", "notes"],
+      "properties": {
+        "needs_review": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "reason"],
+            "properties": {
+              "path": {"type": "string"},
+              "reason": {"type": "string"}
+            }
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "source": {
+      "enum": ["observed", "inferred", "proposed"]
+    },
+    "bbox": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y", "w", "h"],
+      "properties": {
+        "x": {"type": "number"},
+        "y": {"type": "number"},
+        "w": {"type": "number", "minimum": 0},
+        "h": {"type": "number", "minimum": 0}
+      }
+    },
+    "point": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": {"type": "number"},
+        "y": {"type": "number"}
+      }
+    },
+    "safeArea": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["left", "right", "top", "bottom", "source", "confidence"],
+      "properties": {
+        "left": {"type": "number", "minimum": 0, "maximum": 1},
+        "right": {"type": "number", "minimum": 0, "maximum": 1},
+        "top": {"type": "number", "minimum": 0, "maximum": 1},
+        "bottom": {"type": "number", "minimum": 0, "maximum": 1},
+        "source": {"$ref": "#/$defs/source"},
+        "confidence": {"$ref": "#/$defs/confidence"}
+      }
+    },
+    "crop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["left", "right", "top", "bottom"],
+      "properties": {
+        "left": {"type": "boolean"},
+        "right": {"type": "boolean"},
+        "top": {"type": "boolean"},
+        "bottom": {"type": "boolean"}
+      }
+    },
+    "element": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "role",
+        "bbox",
+        "center",
+        "layer_depth",
+        "rotation_deg",
+        "crop",
+        "source",
+        "confidence",
+        "review_status"
+      ],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "role": {"type": "string", "minLength": 1},
+        "parent": {"type": ["string", "null"]},
+        "text": {"type": ["string", "null"]},
+        "bbox": {"$ref": "#/$defs/bbox"},
+        "center": {"$ref": "#/$defs/point"},
+        "layer_depth": {"type": "integer"},
+        "rotation_deg": {"type": "number"},
+        "crop": {"$ref": "#/$defs/crop"},
+        "source": {"$ref": "#/$defs/source"},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "review_status": {"enum": ["accepted", "needs_review"]},
+        "evidence": {"type": ["string", "null"]}
+      }
+    },
+    "endpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["element", "anchor"],
+      "properties": {
+        "element": {"type": "string"},
+        "anchor": {
+          "enum": [
+            "top",
+            "bottom",
+            "left",
+            "right",
+            "center",
+            "top_left",
+            "top_right",
+            "bottom_left",
+            "bottom_right",
+            "baseline",
+            "visual_center"
+          ]
+        }
+      }
+    },
+    "anchorRelation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "from", "to", "offset", "source", "confidence"],
+      "properties": {
+        "id": {"type": "string"},
+        "from": {"$ref": "#/$defs/endpoint"},
+        "to": {"$ref": "#/$defs/endpoint"},
+        "offset": {"$ref": "#/$defs/point"},
+        "source": {"$ref": "#/$defs/source"},
+        "confidence": {"$ref": "#/$defs/confidence"}
+      }
+    },
+    "constraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "subjects", "priority", "source", "confidence"],
+      "properties": {
+        "id": {"type": "string"},
+        "type": {
+          "enum": [
+            "align_left",
+            "align_right",
+            "align_center_x",
+            "align_top",
+            "align_bottom",
+            "align_center_y",
+            "baseline_align",
+            "above",
+            "below",
+            "left_of",
+            "right_of",
+            "inside",
+            "contains",
+            "stay_inside_safe_area",
+            "gap",
+            "min_gap",
+            "max_gap",
+            "equal_gap",
+            "edge_offset",
+            "maintain_aspect_ratio",
+            "equal_width",
+            "equal_height",
+            "proportional_scale",
+            "avoid_overlap",
+            "attach"
+          ]
+        },
+        "subjects": {
+          "type": "array",
+          "items": {"type": "string"},
+          "minItems": 1
+        },
+        "value": {},
+        "priority": {"enum": ["required", "strong", "medium", "weak"]},
+        "source": {"$ref": "#/$defs/source"},
+        "confidence": {"$ref": "#/$defs/confidence"}
+      }
+    },
+    "fixation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rank", "target", "weight", "mechanisms", "confidence"],
+      "properties": {
+        "rank": {"type": "integer", "minimum": 1},
+        "target": {"type": "string"},
+        "weight": {"type": "number", "minimum": 0, "maximum": 1},
+        "mechanisms": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "confidence": {"$ref": "#/$defs/confidence"}
+      }
+    },
+    "attentionTransition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "mechanisms", "confidence"],
+      "properties": {
+        "from": {"type": "string"},
+        "to": {"type": "string"},
+        "mechanisms": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "confidence": {"$ref": "#/$defs/confidence"}
+      }
+    },
+    "occlusionRelation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["front", "behind", "relation", "source", "confidence"],
+      "properties": {
+        "front": {"type": "string"},
+        "behind": {"type": "string"},
+        "relation": {
+          "enum": ["overlap", "mask", "clip", "behind", "in_front_of"]
+        },
+        "source": {"$ref": "#/$defs/source"},
+        "confidence": {"$ref": "#/$defs/confidence"}
+      }
+    }
+  }
+}
