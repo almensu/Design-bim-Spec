@@ -7,7 +7,7 @@ Compile a 2D design reference or design brief into a canonical **Design Reconstr
 This skill is a **multimodal visual specification compiler**, not a renderer.
 
 ```text
-SEE → UNDERSTAND → CLASSIFY → DECOMPOSE → PARAMETERIZE → SPECIFY → STOP
+SEE → UNDERSTAND → CLASSIFY → DECOMPOSE → PARAMETERIZE → SPECIFY → REVIEW → STOP
 ```
 
 ## Inputs
@@ -37,32 +37,25 @@ Never conflate:
 - `inferred`
 - `proposed`
 
-## Required reference reading order
+## Required reference routing
 
-Before execution, read:
+Read first:
 
 1. `references/material-taxonomy.md`
-   - classify the target material.
-
 2. `references/visual-analysis-protocol.md`
-   - perform multimodal inspection and semantic decomposition.
-
 3. `references/canonical-schema.md`
-   - understand DRS field semantics.
 
-Then read as needed:
+Read as needed:
 
 4. `references/layout-constraints.md`
-   - bbox, anchors, constraints, layer depth, occlusion, safe area.
-
 5. `references/attention-model.md`
-   - visual fixation order and attention transitions.
-
 6. `references/style-tokens.md`
-   - measurable visual style extraction.
-
 7. `references/output-contract.md`
-   - final Human View + Machine View structure.
+
+Before accepting the output:
+
+8. Read the relevant task-routed entries in `references/Gotchas.md`.
+9. Run `references/review-checklists/drs-output-review.md`.
 
 Machine View should conform to:
 - `references/schema/design-reconstruction-spec.schema.json`
@@ -84,8 +77,9 @@ Examples live under:
 10. Mark provenance, confidence, and review needs.
 11. Emit Human View.
 12. Emit Machine View.
-13. Validate both views agree.
-14. **STOP**.
+13. Reconcile Human ↔ Machine.
+14. Check relevant Gotchas and the DRS output review.
+15. **STOP**.
 
 ## Hard boundaries
 
@@ -98,7 +92,20 @@ Do not:
 - silently redesign the reference;
 - invent unreadable text, exact fonts, exact colors, or dimensions;
 - flatten semantic groups into unrelated objects;
-- substitute vague style adjectives for measurable tokens.
+- substitute vague style adjectives for measurable tokens;
+- mutate this repository during a normal DRS run.
+
+## Repository maintenance route
+
+Only when the user/maintainer explicitly asks to improve Design-bim-Spec itself, use:
+
+1. `references/Gotchas.md`
+2. `references/evolution-loop.md`
+3. `references/improvement-record-template.md`
+4. `references/recursive-self-improvement-protocol.md`
+5. `references/changelog.md`
+
+Normal specification generation and repository self-improvement are separate workflows.
 
 ## Completion test
 
@@ -112,6 +119,8 @@ The task is complete only when:
 - style tokens are explicit;
 - uncertainty is explicit;
 - Human View and Machine View agree;
+- relevant Gotchas have been checked;
+- DRS output review passes or unresolved items are explicitly reported;
 - no final asset has been generated.
 
 After that, **STOP**.
